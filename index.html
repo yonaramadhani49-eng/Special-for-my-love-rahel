@@ -511,23 +511,20 @@
       isPlayingAudio = true;
       document.getElementById('musicBtn').innerText = '🎶';
 
-      // Faster tempo and romantic arpeggiated melodic progression
       const heartMelody = [329.63, 392.00, 493.88, 587.33, 523.25, 440.00, 392.00, 493.88];
       let step = 0;
 
       if (musicInterval) clearInterval(musicInterval);
       musicInterval = setInterval(() => {
         if (!isPlayingAudio) return;
-        // High melodic lead note
         playNote(heartMelody[step % heartMelody.length], 0.6, 'sine', 0.25);
-        // Deep heartbeat pulse playing in background
         if (step % 2 === 0) {
-          playNote(130.81, 0.4, 'triangle', 0.3); // Low C Bass
+          playNote(130.81, 0.4, 'triangle', 0.3);
         } else {
-          playNote(164.81, 0.4, 'triangle', 0.2); // Low E Bass
+          playNote(164.81, 0.4, 'triangle', 0.2);
         }
         step++;
-      }, 280); // Speeded up tempo for an energetic romantic vibe
+      }, 280);
     }
 
     function toggleAudio() {
@@ -670,7 +667,7 @@
     window.addEventListener('mousemove', onPointerMove);
     window.addEventListener('mouseup', onPointerUp);
 
-    heartA.addEventListener('touchstart', (e) => { e.preventDefault(); onPointerDown(e); });
+    heartA.addEventListener('touchstart', (e) => { e.preventDefault(); onPointerDown(e); }, { passive: false });
     window.addEventListener('touchmove', (e) => { onPointerMove(e); }, { passive: false });
     window.addEventListener('touchend', onPointerUp);
 
@@ -822,7 +819,7 @@
     }
 
     function triggerPoppingEmbrace() {
-      popEmoji('💖 🫂🫠😘🥳');
+      popEmoji('💖 🫂');
       typeWriter("stage2Text", "💖 🫂 Warm embrace received! Yona feels your love right now! 🩷", 20);
     }
 
@@ -831,7 +828,7 @@
       document.getElementById('giftOverlay').classList.add('active');
 
       typeWriter("stage3Title", "A Love Token From Yona 🎁");
-      typeWriter("stage3Text", "My wife to be, tap the gift to reveal what you mean to me.", 20);
+      typeWriter("stage3Text", "My dear Rahel, tap the gift to reveal what you mean to me.", 20);
     }
 
     function openGift() {
