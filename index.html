@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Yona 🩷 Rahel — Eternal Soulmates</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #05020a;
+      --primary-pink: #ff2a75;
+      --primary-purple: #9d4edd;
+      --glass-bg: rgba(20, 10, 30, 0.78);
+      --glass-border: rgba(255, 255, 255, 0.15);
+      --text-main: #ffffff;
+      --text-muted: #d8b4fe;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg-dark);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-main);
+      position: relative;
+    }
+
+    #bgCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .bg-gradient {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 50% 30%, rgba(157, 78, 221, 0.25) 0%, rgba(5, 2, 10, 0.98) 75%);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .sender-banner {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      background: rgba(255, 42, 117, 0.18);
+      border: 1px solid rgba(255, 42, 117, 0.45);
+      padding: 0.45rem 1.2rem;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fff;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 20px rgba(255, 42, 117, 0.35);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .music-btn {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      z-index: 100;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--glass-bg);
+      border: 1.5px solid var(--primary-pink);
+      color: #fff;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 20px rgba(255, 42, 117, 0.5);
+    }
+
+    .app-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4.5rem 1rem 1.5rem 1rem;
+    }
+
+    .header-box {
+      text-align: center;
+      max-width: 90vw;
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    .header-box h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+      min-height: 1.6em;
+      text-shadow: 0 0 12px rgba(157, 78, 221, 0.5);
+      white-space: pre-wrap;
+    }
+
+    .header-box p {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.88);
+      line-height: 1.4;
+      min-height: 2.8em;
+      white-space: pre-wrap;
+    }
+
+    .instruction-tag {
+      display: inline-block;
+      margin-top: 0.6rem;
+      padding: 0.4rem 1rem;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 50px;
+      font-size: 0.78rem;
+      color: var(--primary-pink);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+    }
+
+    .arena {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 15;
+    }
+
+    .heart-element {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      width: 76px;
+      height: 76px;
+      cursor: grab;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      will-change: left, top;
+    }
+
+    #heartA {
+      filter: drop-shadow(0 0 18px var(--primary-pink));
+      z-index: 30;
+    }
+
+    #heartB {
+      filter: drop-shadow(0 0 16px var(--primary-purple));
+      z-index: 25;
+      transition: left 0.35s ease-out, top 0.35s ease-out;
+    }
+
+    .heart-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .speech-bubble {
+      position: absolute;
+      z-index: 40;
+      background: rgba(18, 8, 28, 0.94);
+      border: 1px solid var(--primary-pink);
+      box-shadow: 0 0 20px rgba(255, 42, 117, 0.45);
+      border-radius: 16px;
+      padding: 0.6rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #ffffff;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      backdrop-filter: blur(12px);
+      max-width: 80vw;
+    }
+
+    .speech-bubble.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .overlay-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background: rgba(5, 2, 10, 0.94);
+      backdrop-filter: blur(20px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.6s ease;
+    }
+
+    .overlay-screen.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .glass-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6), inset 0 0 15px rgba(255, 42, 117, 0.15);
+      border-radius: 28px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      width: 100%;
+      max-width: 380px;
+      backdrop-filter: blur(16px);
+      transform: translateY(20px);
+      transition: transform 0.6s ease;
+    }
+
+    .overlay-screen.active .glass-card {
+      transform: translateY(0);
+    }
+
+    .glass-card h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.45rem;
+      color: #fff;
+      margin-bottom: 0.8rem;
+      white-space: pre-wrap;
+    }
+
+    .glass-card p {
+      font-size: 0.92rem;
+      color: #d1c4e9;
+      line-height: 1.5;
+      margin-bottom: 1.2rem;
+      min-height: 3em;
+      white-space: pre-wrap;
+    }
+
+    .conspicuous-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.3rem;
+      font-weight: 800;
+      color: #ffffff;
+      text-shadow: 0 0 20px var(--primary-pink), 0 0 40px var(--primary-purple);
+      margin: 0.8rem 0;
+      animation: popPulse 1.2s infinite alternate ease-in-out;
+      display: inline-block;
+    }
+
+    @keyframes popPulse {
+      0% { transform: scale(1); filter: drop-shadow(0 0 10px var(--primary-pink)); }
+      100% { transform: scale(1.18); filter: drop-shadow(0 0 25px var(--primary-pink)); }
+    }
+
+    .btn-action {
+      background: linear-gradient(135deg, var(--primary-pink), var(--primary-purple));
+      border: none;
+      color: #ffffff;
+      padding: 0.9rem 1.8rem;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 25px rgba(255, 42, 117, 0.4);
+      transition: transform 0.2s ease;
+      width: 100%;
+      margin-top: 0.4rem;
+      display: inline-block;
+      text-decoration: none;
+    }
+
+    .btn-action:active {
+      transform: scale(0.95);
+    }
+
+    .btn-whatsapp {
+      background: linear-gradient(135deg, #25D366, #128C7E);
+      box-shadow: 0 6px 25px rgba(37, 211, 102, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--glass-border);
+      box-shadow: none;
+      margin-top: 0.6rem;
+    }
+
+    .gift-box-wrapper {
+      margin: 1.2rem 0;
+      cursor: pointer;
+      display: inline-block;
+    }
+
+    .gift-box-icon {
+      font-size: 4rem;
+      filter: drop-shadow(0 0 20px var(--primary-pink));
+      animation: giftBounce 2s infinite ease-in-out;
+      display: inline-block;
+    }
+
+    @keyframes giftBounce {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(5deg); }
+    }
+
+    .shockwave {
+      position: absolute;
+      border-radius: 50%;
+      border: 2px solid var(--primary-pink);
+      box-shadow: 0 0 20px var(--primary-pink);
+      pointer-events: none;
+      animation: waveExpand 0.7s ease-out forwards;
+      z-index: 22;
+    }
+
+    @keyframes waveExpand {
+      0% { width: 10px; height: 10px; opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      100% { width: 250px; height: 250px; opacity: 0; transform: translate(-50%, -50%) scale(1); }
+    }
+
+    .popping-emoji {
+      position: absolute;
+      pointer-events: none;
+      z-index: 60;
+      font-size: 2.2rem;
+      animation: emojiPopUp 1.2s ease-out forwards;
+    }
+
+    @keyframes emojiPopUp {
+      0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+      50% { transform: translate(-50%, -90px) scale(1.4); }
+      100% { opacity: 0; transform: translate(-50%, -160px) scale(1); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sender-banner">
+    <span>For my soulmate, Rahel... From Yona 💖✨</span>
+  </div>
+
+  <button class="music-btn" id="musicBtn" onclick="toggleAudio()">🎵</button>
+
+  <canvas id="bgCanvas"></canvas>
+  <div class="bg-gradient"></div>
+
+  <div class="app-container">
+    <div class="header-box" id="headerBox">
+      <h2 id="headerTitle"></h2>
+      <p id="headerSub"></p>
+      <div class="instruction-tag" id="instructionTag">Touch and bring Rahel's heart to Yona 💋</div>
+    </div>
+
+    <div class="arena" id="arena">
+      <div class="heart-element" id="heartA">
+        <svg class="heart-svg" viewBox="0 0 32 32">
+          <path fill="url(#pinkGrad)" d="M16,28.2 C15.4,27.7 4,18.2 4,11 C4,6.6 7.6,3 12,3 C14.5,3 16,4.5 16,4.5 C16,4.5 17.5,3 20,3 C24.4,3 28,6.6 28,11 C28,18.2 16.6,27.7 16,28.2 Z"/>
+          <defs>
+            <linearGradient id="pinkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ff2a75" />
+              <stop offset="100%" stop-color="#9d4edd" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
+      <div class="heart-element" id="heartB">
+        <svg class="heart-svg" viewBox="0 0 32 32">
+          <path fill="none" stroke="url(#purpleGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M16,28.2 C15.4,27.7 4,18.2 4,11 C4,6.6 7.6,3 12,3 C14.5,3 16,4.5 16,4.5 C16,4.5 17.5,3 20,3 C24.4,3 28,6.6 28,11 C28,18.2 16.6,27.7 16,28.2 Z"/>
+          <path id="heartBFill" fill="url(#purpleGrad)" opacity="0" d="M16,28.2 C15.4,27.7 4,18.2 4,11 C4,6.6 7.6,3 12,3 C14.5,3 16,4.5 16,4.5 C16,4.5 17.5,3 20,3 C24.4,3 28,6.6 28,11 C28,18.2 16.6,27.7 16,28.2 Z"/>
+          <defs>
+            <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#e0aaff" />
+              <stop offset="100%" stop-color="#ff2a75" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
+      <div class="speech-bubble" id="speechBubble">
+        <span id="speechText"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay-screen" id="successOverlay">
+    <div class="glass-card">
+      <div class="conspicuous-logo">Yona 🩷 Rahel</div>
+      <h1 id="stage1Title"></h1>
+      <p id="stage1Text"></p>
+      <button class="btn-action" onclick="goToEmbraceStage()">Step Into My Arms 💖 🫂</button>
+    </div>
+  </div>
+
+  <div class="overlay-screen" id="embraceOverlay">
+    <div class="glass-card">
+      <div style="font-size: 3.5rem; margin-bottom: 0.5rem;" id="embraceEmoticon">💖 🫂</div>
+      <h1 id="stage2Title"></h1>
+      <p id="stage2Text"></p>
+      <button class="btn-action" id="embraceBtn" onclick="triggerPoppingEmbrace()">SEND 💖 🫂 BACK TO YONA</button>
+      <button class="btn-action btn-secondary" onclick="goToGiftStage()">Open Your Love Token 🎁</button>
+    </div>
+  </div>
+
+  <div class="overlay-screen" id="giftOverlay">
+    <div class="glass-card">
+      <h1 id="stage3Title"></h1>
+      <p id="stage3Text"></p>
+      <div class="gift-box-wrapper" onclick="openGift()">
+        <div class="gift-box-icon" id="giftBoxIcon">🎁</div>
+      </div>
+      
+      <div id="giftContent" style="display: none; margin-top: 1rem;">
+        <h2 id="giftTitle" style="color: var(--primary-pink); font-size: 1.3rem; margin-bottom: 0.4rem;">Yona's Forever Promise 💖</h2>
+        <p id="giftDesc" style="font-size: 0.9rem; color: #fff; min-height: auto;"></p>
+        <button class="btn-action" onclick="goToFinalStage()">Our Final Destination 💕</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay-screen" id="finalOverlay">
+    <div class="glass-card">
+      <div class="conspicuous-logo">Yona 🩷 Rahel</div>
+      <h1 id="stage4Title"></h1>
+      <p id="stage4Text"></p>
+      <a href="https://wa.me/255700000000?text=Hey%20Yona!%20I%20just%20completed%20our%20love%20challenge.%20I%20love%20you%20so%20much!%20💖🫂" 
+         target="_blank" 
+         class="btn-action btn-whatsapp">
+        Send Love Message To Yona 💬
+      </a>
+    </div>
+  </div>
+
+  <script>
+    const DODGE_MESSAGES = [
+      "You almost have my whole heart, Rahel! 💕",
+      "Catch me, my love! 😘",
+      "Yona made this purely for you, my queen 😏💖",
+      "Keep chasing... I'm yours! 🩷",
+      "My heart beats faster when you get close. 🥹💕",
+      "Don't give up Rahel, Yona is right here! 💕",
+      "You were made for me, soulmate... 👀💕",
+      "Yona 🩷 Rahel Forever & Always! 💖"
+    ];
+
+    let audioCtx = null;
+    let isPlayingAudio = false;
+    let musicInterval = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playNote(freq, duration, type = 'sine', volume = 0.25) {
+      if (!audioCtx || audioCtx.state !== 'running') return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+        gain.gain.setValueAtTime(0.01, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(volume, audioCtx.currentTime + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch(e){}
+    }
+
+    function startCoolMusic() {
+      initAudio();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      isPlayingAudio = true;
+      document.getElementById('musicBtn').innerText = '🎶';
+
+      // Faster tempo and romantic arpeggiated melodic progression
+      const heartMelody = [329.63, 392.00, 493.88, 587.33, 523.25, 440.00, 392.00, 493.88];
+      let step = 0;
+
+      if (musicInterval) clearInterval(musicInterval);
+      musicInterval = setInterval(() => {
+        if (!isPlayingAudio) return;
+        // High melodic lead note
+        playNote(heartMelody[step % heartMelody.length], 0.6, 'sine', 0.25);
+        // Deep heartbeat pulse playing in background
+        if (step % 2 === 0) {
+          playNote(130.81, 0.4, 'triangle', 0.3); // Low C Bass
+        } else {
+          playNote(164.81, 0.4, 'triangle', 0.2); // Low E Bass
+        }
+        step++;
+      }, 280); // Speeded up tempo for an energetic romantic vibe
+    }
+
+    function toggleAudio() {
+      if (isPlayingAudio) {
+        isPlayingAudio = false;
+        document.getElementById('musicBtn').innerText = '🎵';
+        if (musicInterval) clearInterval(musicInterval);
+      } else {
+        startCoolMusic();
+      }
+    }
+
+    let typeTimeouts = {};
+
+    function typeWriter(elementId, text, speed = 25) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+
+      if (typeTimeouts[elementId]) clearTimeout(typeTimeouts[elementId]);
+
+      el.textContent = "";
+      let i = 0;
+
+      function write() {
+        if (i < text.length) {
+          el.textContent += text.charAt(i);
+          i++;
+          typeTimeouts[elementId] = setTimeout(write, speed);
+        }
+      }
+      write();
+    }
+
+    let dodgeCount = 0;
+    let isDragging = false;
+    let heartAPos = { x: 0, y: 0 };
+    let heartBPos = { x: 0, y: 0 };
+    let isFinalDodge = false;
+    let speechTimeout = null;
+    let particles = [];
+    const dodgeMax = 5;
+
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class Particle {
+      constructor() { this.reset(); }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 3 + 1;
+        this.speedY = -(Math.random() * 0.8 + 0.3);
+        this.opacity = Math.random() * 0.5 + 0.2;
+      }
+      update() {
+        this.y += this.speedY;
+        if (this.y < -10) this.reset();
+      }
+      draw() {
+        ctx.fillStyle = '#ff2a75';
+        ctx.globalAlpha = this.opacity;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+      }
+    }
+
+    for (let i = 0; i < 40; i++) particles.push(new Particle());
+
+    function renderParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => { p.update(); p.draw(); });
+      requestAnimationFrame(renderParticles);
+    }
+    renderParticles();
+
+    const heartA = document.getElementById('heartA');
+    const heartB = document.getElementById('heartB');
+    const speechBubble = document.getElementById('speechBubble');
+    const speechText = document.getElementById('speechText');
+    const arena = document.getElementById('arena');
+
+    function initPositions() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+
+      heartAPos = { x: w * 0.5, y: h * 0.78 };
+      heartBPos = { x: w * 0.5, y: h * 0.38 };
+
+      heartA.style.left = `${heartAPos.x}px`;
+      heartA.style.top = `${heartAPos.y}px`;
+      heartB.style.left = `${heartBPos.x}px`;
+      heartB.style.top = `${heartBPos.y}px`;
+
+      typeWriter("headerTitle", "Yona left his soul right here for Rahel 💕");
+      typeWriter("headerSub", "You hold the missing piece to my life. Merge your heart directly into mine, my love. 🩷", 20);
+    }
+
+    function onPointerDown(e) {
+      initAudio();
+      if (!isPlayingAudio) startCoolMusic();
+
+      isDragging = true;
+      heartA.style.transform = "translate(-50%, -50%) scale(1.15)";
+    }
+
+    function onPointerMove(e) {
+      if (!isDragging) return;
+
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+
+      if (!clientX || !clientY) return;
+
+      const padding = 38;
+      heartAPos.x = Math.max(padding, Math.min(window.innerWidth - padding, clientX));
+      heartAPos.y = Math.max(padding, Math.min(window.innerHeight - padding, clientY));
+
+      heartA.style.left = `${heartAPos.x}px`;
+      heartA.style.top = `${heartAPos.y}px`;
+
+      spawnDragTrail(heartAPos.x, heartAPos.y);
+      checkProximity();
+    }
+
+    function onPointerUp() {
+      isDragging = false;
+      heartA.style.transform = "translate(-50%, -50%) scale(1)";
+    }
+
+    heartA.addEventListener('mousedown', onPointerDown);
+    window.addEventListener('mousemove', onPointerMove);
+    window.addEventListener('mouseup', onPointerUp);
+
+    heartA.addEventListener('touchstart', (e) => { e.preventDefault(); onPointerDown(e); });
+    window.addEventListener('touchmove', (e) => { onPointerMove(e); }, { passive: false });
+    window.addEventListener('touchend', onPointerUp);
+
+    function checkProximity() {
+      const dx = heartAPos.x - heartBPos.x;
+      const dy = heartAPos.y - heartBPos.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance < 110 && dodgeCount < dodgeMax) {
+        triggerDodge();
+      } else if (distance < 130 && dodgeCount === dodgeMax - 1 && !isFinalDodge) {
+        prepareFinalDodge();
+      } else if (distance < 55 && isFinalDodge) {
+        triggerMergeSuccess();
+      }
+    }
+
+    function triggerDodge() {
+      dodgeCount++;
+      createShockwave(heartBPos.x, heartBPos.y);
+
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      
+      const minX = 60;
+      const maxX = w - 60;
+      const minY = h * 0.28;
+      const maxY = h * 0.72;
+
+      let newX = Math.random() * (maxX - minX) + minX;
+      let newY = Math.random() * (maxY - minY) + minY;
+
+      if (Math.abs(newX - heartAPos.x) < 90) newX = (newX + 120) % maxX;
+
+      heartBPos = { x: newX, y: newY };
+      heartB.style.left = `${heartBPos.x}px`;
+      heartB.style.top = `${heartBPos.y}px`;
+
+      const randomMsg = DODGE_MESSAGES[Math.floor(Math.random() * DODGE_MESSAGES.length)];
+      showSpeechBubble(randomMsg);
+    }
+
+    function prepareFinalDodge() {
+      isFinalDodge = true;
+      typeWriter("headerTitle", "Wait… Rahel is pulling closer! 🥹💕");
+      typeWriter("headerSub", "Yona feels your passion. You are my true soulmate. One last step!", 20);
+
+      setTimeout(() => {
+        triggerDodge();
+        setTimeout(() => {
+          typeWriter("headerTitle", "Bring your soul home to Yona. 🩷");
+          typeWriter("headerSub", "Drag your heart right into mine. Forever yours.", 20);
+        }, 1000);
+      }, 400);
+    }
+
+    function showSpeechBubble(text) {
+      if (speechTimeout) clearTimeout(speechTimeout);
+
+      speechText.textContent = text;
+
+      let bubbleX = heartBPos.x;
+      let bubbleY = heartBPos.y - 55;
+
+      if (heartBPos.y < window.innerHeight * 0.35) {
+        bubbleY = heartBPos.y + 55;
+      }
+
+      bubbleX = Math.max(90, Math.min(window.innerWidth - 90, bubbleX));
+
+      speechBubble.style.left = `${bubbleX}px`;
+      speechBubble.style.top = `${bubbleY}px`;
+      speechBubble.classList.add('active');
+
+      speechTimeout = setTimeout(() => {
+        speechBubble.classList.remove('active');
+      }, 2000);
+    }
+
+    function spawnDragTrail(x, y) {
+      if (Math.random() > 0.4) return;
+      const el = document.createElement('div');
+      el.textContent = '💖';
+      el.style.position = 'absolute';
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+      el.style.fontSize = `${Math.random() * 12 + 10}px`;
+      el.style.pointerEvents = 'none';
+      el.style.zIndex = '28';
+      el.style.transition = 'all 0.6s ease-out';
+      arena.appendChild(el);
+
+      setTimeout(() => {
+        el.style.transform = `translate(${(Math.random() - 0.5) * 30}px, -30px)`;
+        el.style.opacity = '0';
+      }, 20);
+
+      setTimeout(() => el.remove(), 650);
+    }
+
+    function createShockwave(x, y) {
+      const wave = document.createElement('div');
+      wave.className = 'shockwave';
+      wave.style.left = `${x}px`;
+      wave.style.top = `${y}px`;
+      arena.appendChild(wave);
+      setTimeout(() => wave.remove(), 750);
+    }
+
+    function popEmoji(emojiSymbol) {
+      for (let i = 0; i < 7; i++) {
+        setTimeout(() => {
+          const el = document.createElement('div');
+          el.className = 'popping-emoji';
+          el.textContent = emojiSymbol;
+          el.style.left = `${window.innerWidth * 0.2 + Math.random() * window.innerWidth * 0.6}px`;
+          el.style.top = `${window.innerHeight * 0.5 + Math.random() * window.innerHeight * 0.2}px`;
+          document.body.appendChild(el);
+
+          setTimeout(() => el.remove(), 1200);
+        }, i * 110);
+      }
+    }
+
+    function triggerMergeSuccess() {
+      isDragging = false;
+      heartAPos = { x: heartBPos.x, y: heartBPos.y };
+      heartA.style.left = `${heartAPos.x}px`;
+      heartA.style.top = `${heartAPos.y}px`;
+
+      document.getElementById('heartBFill').style.opacity = '1';
+      document.getElementById('heartBFill').style.transition = 'opacity 0.5s ease';
+
+      createShockwave(heartBPos.x, heartBPos.y);
+
+      setTimeout(() => {
+        document.getElementById('successOverlay').classList.add('active');
+        typeWriter("stage1Title", "OUR HEARTS HAVE MERGED FOREVER 💕");
+        typeWriter("stage1Text", "Rahel, you found your place in Yona's heart! 🥹🩷\n\nOur love is infinite, powerful, and eternal.", 20);
+      }, 700);
+    }
+
+    function goToEmbraceStage() {
+      document.getElementById('successOverlay').classList.remove('active');
+      document.getElementById('embraceOverlay').classList.add('active');
+      
+      typeWriter("stage2Title", "Come here, Rahel... My Queen 💖 🫂");
+      typeWriter("stage2Text", "A tight, passionate embrace sent straight from Yona's soul to yours.", 20);
+    }
+
+    function triggerPoppingEmbrace() {
+      popEmoji('💖 🫂');
+      typeWriter("stage2Text", "💖 🫂 Warm embrace received! Yona feels your love right now! 🩷", 20);
+    }
+
+    function goToGiftStage() {
+      document.getElementById('embraceOverlay').classList.remove('active');
+      document.getElementById('giftOverlay').classList.add('active');
+
+      typeWriter("stage3Title", "A Love Token From Yona 🎁");
+      typeWriter("stage3Text", "My dear Rahel, tap the gift to reveal what you mean to me.", 20);
+    }
+
+    function openGift() {
+      const box = document.getElementById('giftBoxIcon');
+      const content = document.getElementById('giftContent');
+
+      box.style.transform = "scale(1.4) rotate(-10deg)";
+      popEmoji('👑');
+
+      setTimeout(() => {
+        box.style.transform = "scale(1) rotate(0deg)";
+        content.style.display = 'block';
+        typeWriter("giftDesc", "Awarded to Rahel: The owner of Yona's heart, my lover, my best friend, and my eternal soulmate. 👑🩷", 20);
+      }, 400);
+    }
+
+    function goToFinalStage() {
+      document.getElementById('giftOverlay').classList.remove('active');
+      document.getElementById('finalOverlay').classList.add('active');
+
+      typeWriter("stage4Title", "Yona 🩷 Rahel Forever");
+      typeWriter("stage4Text", "Out of all the people in the world, I am forever blessed that our paths crossed. You complete me, my love. 💖 🫂", 20);
+    }
+
+    window.onload = initPositions;
+  </script>
+</body>
+</html>
